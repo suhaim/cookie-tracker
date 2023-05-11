@@ -19,23 +19,25 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           <tr>
             <th>Cookie Name</th>
             <th>Size (bytes)</th>
+            <th>URL</th>
           </tr>
       `;
 
-      let csvContent = 'Cookie Name,Size (bytes)\n';
+      let csvContent = 'Cookie Name,Size (bytes),URL\n';
       for (const cookie of tabData.cookies) {
         cookieInfoHtml += `
           <tr>
             <td>${cookie.name}</td>
             <td>${cookie.size}</td>
+            <td>${cookie.url}</td>
           </tr>
         `;
-        csvContent += `${cookie.name},${cookie.size}\n`;
+        csvContent += `${cookie.name},${cookie.size},${cookie.url}\n`;
       }
 
       cookieInfoHtml += '</table>';
       document.getElementById('cookieInfo').innerHTML = cookieInfoHtml;
-
+    
       const downloadBtn = document.createElement('button');
       downloadBtn.innerText = 'Download CSV';
       downloadBtn.onclick = () => downloadCSV(csvContent);
@@ -44,4 +46,4 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       document.getElementById('cookieInfo').innerText = 'No data available.';
     }
   });
-});
+});    
