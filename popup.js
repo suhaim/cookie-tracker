@@ -37,13 +37,25 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 
       cookieInfoHtml += '</table>';
       document.getElementById('cookieInfo').innerHTML = cookieInfoHtml;
-    
+
       const downloadBtn = document.createElement('button');
       downloadBtn.innerText = 'Download CSV';
       downloadBtn.onclick = () => downloadCSV(csvContent);
       document.getElementById('cookieInfo').appendChild(downloadBtn);
+
+      // Add the Clear Data button
+      const clearDataBtn = document.createElement('button');
+      clearDataBtn.innerText = 'Clear Data';
+      clearDataBtn.onclick = () => {
+        chrome.storage.local.remove(String(activeTab.id), () => {
+          console.log('Cookie data cleared for tab', activeTab.id);
+          document.getElementById('cookieInfo').innerText = 'Data cleared.';
+        });
+      };
+      document.getElementById('cookieInfo').appendChild(clearDataBtn);
+      
     } else {
       document.getElementById('cookieInfo').innerText = 'No data available.';
     }
   });
-});    
+});
