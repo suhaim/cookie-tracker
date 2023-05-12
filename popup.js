@@ -21,10 +21,11 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             <th>Size (bytes)</th>
             <th>URL</th>
             <th>TTL</th>
+            <th>Timestamp</th>
           </tr>
       `;
 
-      let csvContent = 'Cookie Name,Size (bytes),URL,TTL\n';
+      let csvContent = 'Cookie Name,Size (bytes),URL,TTL,Timestamp\n';
       for (const cookie of tabData.cookies) {
         cookieInfoHtml += `
           <tr>
@@ -32,19 +33,21 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             <td>${cookie.size}</td>
             <td>${cookie.url}</td>
             <td>${cookie.ttl !== 'Session' ? Math.round(cookie.ttl / 1000) + ' seconds' : 'Session'}</td>
+            <td>${new Date(cookie.timestamp).toLocaleString()}</td>
           </tr>
         `;
-        csvContent += `${cookie.name},${cookie.size},${cookie.url},${cookie.ttl !== 'Session' ? Math.round(cookie.ttl / 1000) + ' seconds' : 'Session'}\n`;
+       
+        csvContent += `${cookie.name},${cookie.size},${cookie.url},${cookie.ttl !== 'Session' ? Math.round(cookie.ttl / 1000) + ' seconds' : 'Session'},${new Date(cookie.timestamp).toLocaleString()}\n`;
       }
-
+    
       cookieInfoHtml += '</table>';
       document.getElementById('cookieInfo').innerHTML = cookieInfoHtml;
-
+    
       const downloadBtn = document.createElement('button');
       downloadBtn.innerText = 'Download CSV';
       downloadBtn.onclick = () => downloadCSV(csvContent);
       document.getElementById('cookieInfo').appendChild(downloadBtn);
-
+    
       // Add the Clear Data button
       const clearDataBtn = document.createElement('button');
       clearDataBtn.innerText = 'Clear Data';
@@ -60,4 +63,4 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       document.getElementById('cookieInfo').innerText = 'No data available.';
     }
   });
-});
+});    

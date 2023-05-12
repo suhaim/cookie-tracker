@@ -1,66 +1,47 @@
-function updateTabCookieData(cookie, tabId) {
-  chrome.storage.local.get(String(tabId), (data) => {
-    const tabData = data[tabId] || {
-      tabId: tabId,
-      url: '',
-      totalSize: 0,
-      cookies: [],
-    };
+chrome.cookies.onChanged.addListener((info) => {
+  const { cookie, cause } = info;
 
-    const existingCookieIndex = tabData.cookies.findIndex(
-      (c) => c.name === cookie.name
-    );
+  if (cause === 'explicit' || cause === 'overwrite') {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const activeTab = tabs[0];
+      chrome.storage.local.get(String(activeTab.id), (data) => {
+        let tabData = data[activeTab.id] || {
+          url: activeTab.url,
+          totalSize: 0,
+          cookies: [],
+        };
 
-    const cookieSize = JSON.stringify(cookie).length;
+        const cookieSize = JSON.stringify(cookie).length;
 
-    if (existingCookieIndex !== -1) {
-      tabData.totalSize -= tabData.cookies[existingCookieIndex].size;
-      tabData.cookies.splice(existingCookieIndex, 1);
-    }
-
-    tabData.totalSize += cookieSize;
-    tabData.cookies.push({
-      name: cookie.name,
-      size: cookieSize,
-      url: tabData.url,
-      ttl: cookie.expirationDate ? cookie.expirationDate * 1000 - Date.now() : 'Session',
-    });
-
-    chrome.storage.local.set({ [tabId]: tabData }, () => {
-      console.log('Cookie data updated:', tabData);
-    });
-  });
-}
-
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === 'complete') {
-    chrome.storage.local.get(String(tabId), (data) => {
-      const tabData = data[tabId] || {
-        tabId: tabId,
-        url: '',
-        totalSize: 0,
-        cookies: [],
-      };
-
-      tabData.url = tab.url;
-      chrome.storage.local.set({ [tabId]: tabData }, () => {
-        console.log('Tab URL updated:', tabData.url);
-      });
-
-      chrome.cookies.getAll({ url: tab.url }, (cookies) => {
-        for (const cookie of cookies) {
-          updateTabCookieData(cookie, tabId);
+        if (tabData.cookies.some((existingCookie) => existingCookie.name === cookie.name)) {
+          tabData.totalSize = tabData.totalSize - tabData.cookies.find((existingCookie) => existingCookie.name === cookie.name).size + cookieSize;
+          tabData.cookies = tabData.cookies.map((existingCookie) => {
+            if (existingCookie.name === cookie.name) {
+              return {
+                name: cookie.name,
+                size: cookieSize,
+                url: tabData.url,
+                ttl: cookie.expirationDate ? cookie.expirationDate * 1000 - Date.now() : 'Session',
+                timestamp: existingCookie.timestamp, // Keep the existing timestamp
+              };
+            }
+            return existingCookie;
+          });
+        } else {
+          tabData.totalSize += cookieSize;
+          tabData.cookies.push({
+            name: cookie.name,
+            size: cookieSize,
+            url: tabData.url,
+            ttl: cookie.expirationDate ? cookie.expirationDate * 1000 - Date.now() : 'Session',
+            timestamp: Date.now(),
+          });
         }
+
+        chrome.storage.local.set({ [activeTab.id]: tabData }, () => {
+          console.log('Stored cookie data for tab', activeTab.id);
+        });
       });
     });
   }
-});
-
-chrome.cookies.onChanged.addListener((changeInfo) => {
-  if (changeInfo.cause !== 'explicit' || !changeInfo.cookie) return;
-
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    const activeTab = tabs[0];
-    updateTabCookieData(changeInfo.cookie, activeTab.id);
-  });
 });
