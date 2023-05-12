@@ -20,19 +20,21 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             <th>Cookie Name</th>
             <th>Size (bytes)</th>
             <th>URL</th>
+            <th>TTL</th>
           </tr>
       `;
 
-      let csvContent = 'Cookie Name,Size (bytes),URL\n';
+      let csvContent = 'Cookie Name,Size (bytes),URL,TTL\n';
       for (const cookie of tabData.cookies) {
         cookieInfoHtml += `
           <tr>
             <td>${cookie.name}</td>
             <td>${cookie.size}</td>
             <td>${cookie.url}</td>
+            <td>${cookie.ttl !== 'Session' ? Math.round(cookie.ttl / 1000) + ' seconds' : 'Session'}</td>
           </tr>
         `;
-        csvContent += `${cookie.name},${cookie.size},${cookie.url}\n`;
+        csvContent += `${cookie.name},${cookie.size},${cookie.url},${cookie.ttl !== 'Session' ? Math.round(cookie.ttl / 1000) + ' seconds' : 'Session'}\n`;
       }
 
       cookieInfoHtml += '</table>';

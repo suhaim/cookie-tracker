@@ -23,6 +23,7 @@ function updateTabCookieData(cookie, tabId) {
       name: cookie.name,
       size: cookieSize,
       url: tabData.url,
+      ttl: cookie.expirationDate ? cookie.expirationDate * 1000 - Date.now() : 'Session',
     });
 
     chrome.storage.local.set({ [tabId]: tabData }, () => {
