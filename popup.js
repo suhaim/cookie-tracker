@@ -25,7 +25,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           </tr>
       `;
 
-      let csvContent = 'Cookie Name,Size (bytes),URL,TTL,Timestamp\n';
+      let csvContent = 'Cookie Name,Size (bytes),URL,TTL(seconds),Timestamp\n';
       for (const cookie of tabData.cookies) {
         cookieInfoHtml += `
           <tr>
@@ -37,7 +37,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           </tr>
         `;
        
-        csvContent += `${cookie.name},${cookie.size},${cookie.url},${cookie.ttl !== 'Session' ? Math.round(cookie.ttl / 1000) + ' seconds' : 'Session'},${new Date(cookie.timestamp).toLocaleString()}\n`;
+        csvContent += `${cookie.name},${cookie.size},${cookie.url},${cookie.ttl !== 'Session' ? Math.round(cookie.ttl / 1000) : 'Session'},${new Date(cookie.timestamp).toLocaleString()}\n`;
       }
     
       cookieInfoHtml += '</table>';
