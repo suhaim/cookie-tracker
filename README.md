@@ -6,7 +6,7 @@ This is a simple Google Chrome extension that tracks cookies and their sizes on 
 
 Follow these steps to install the Cookie Tracker extension locally:
 
-1. Clone this repository or download the repository as a ZIP file and extract it.
+Clone this repository or download the repository as a ZIP file and extract it.
 
 ```bash
 git clone https://github.com/yourusername/cookie-tracker.git
