@@ -1,6 +1,6 @@
 # Cookie Tracker Extension
 
-This is a simple Google Chrome extension that tracks cookies and their sizes on every page visited. The extension displays the cookie name, size, and URL where the cookie was added or updated. Users can also download the cookie data as a CSV file and clear the tracked cookie data.
+This is a simple Google Chrome extension that tracks cookies and their sizes on every page visited. The extension displays the cookie name, size, timestamp and URL where the cookie was added or updated. Users can also download the cookie data as a CSV file and clear the tracked cookie data.
 
 ## Installation
 
